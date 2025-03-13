@@ -1,0 +1,11 @@
+splitwise
+│   expense-split-backend
+│   ├── models
+│   │   └── userauth.go
+│   ├── routes
+│   │   └── Authroutes.go
+│   ├── templates
+│   ├── duplicate.go
+│   ├── go.mod
+│   ├── go.sum
+│   └── main.go

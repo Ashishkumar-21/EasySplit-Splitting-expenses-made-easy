@@ -1,0 +1,8 @@
+{
+  "path": "/easysplit-login",
+  "httpMethod": "GET",
+  "queryStringParameters": {
+    "user_id": "12345",
+    "mobile": "9182800267"
+  }
+}
