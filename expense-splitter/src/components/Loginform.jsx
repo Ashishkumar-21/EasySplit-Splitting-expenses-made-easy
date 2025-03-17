@@ -1,8 +1,8 @@
 import { useState } from "react"
 import  styles from './Loginform.module.css'
 export const Loginform=({isLogin})=>{
-    const [ID, setID]=useState("")
-    const [MobileNo, setNo]=useState("")
+    let [ID, setID]=useState("")
+    let [MobileNo, setNo]=useState("")
     const handleSubmit= async (e)=>{
         e.preventDefault();//prevents default form submission behavour which reloads the page
         if(!ID && !MobileNo){
@@ -15,11 +15,22 @@ export const Loginform=({isLogin})=>{
             }
             console.log(response)
             const data=await response.json()
-            const {user_name}= data
-            isLogin({ID, MobileNo, user_name})
+            const {message, user_id, mobile }= data
+            ID=user_id
+            MobileNo=mobile
+            if (ID) {
+                localStorage.setItem("user_id", ID);  
+                console.log("user id in ls:", localStorage.getItem("user_id"))
+            }
+            if (MobileNo) {
+                localStorage.setItem("mobile", MobileNo);// Save user_id in localStorage
+                console.log("mobile in ls:", localStorage.getItem("mobile"))
+            }
+            isLogin({ID, MobileNo, message})
+            
         }
         catch(error){
-            alert(error.messege)
+            alert(error.message)
 
         }
 
@@ -30,10 +41,10 @@ export const Loginform=({isLogin})=>{
             <div className={styles.loginBox}>
             <h2 className={styles.loginTitle}> Login</h2>
             <form onSubmit={handleSubmit}>
-                <input className={styles.inputField} type="number" placeholder="Enter User ID" value={ID} onChange={(e)=>(setID(e.target.value))}></input>
+                <input className={styles.inputField} type="text" placeholder="Enter User ID" value={ID} onChange={(e)=>(setID(e.target.value))}></input>
                 <h2>OR</h2>
                 <input className={styles.inputField} type="telephone" placeholder="Enter MobileNo" value={MobileNo} onChange={(e)=>(setNo(e.target.value))}></input>
-                <button className={styles.loginBtn}>login</button>
+                <button className={styles.loginBtn} type="submit">login</button>
             </form>
             </div>
         </div>

@@ -203,7 +203,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return LoginHandler(o, request)
 	} else if request.Path == "/easysplit-signin" {
 		return SigninHandler(o, request)
+	} else if request.Path == "/easysplit-get_friends" {
+		return GetDashboardHandler(o, request)
 	}
+
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
 		Headers: map[string]string{

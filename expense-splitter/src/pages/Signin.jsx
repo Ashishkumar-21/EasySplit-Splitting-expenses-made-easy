@@ -1,18 +1,22 @@
 import { useState } from "react";
 import { Signinform } from "../components/Signinform";
+import { useNavigate } from "react-router-dom";
 
 function Signin() {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate(); 
 
   const handleSignin = (userData) => {
-    console.log("User state before update:", userData);
     setUser(userData);
+    if (userData.message === "Signin successful") {
+      navigate("/dashboard")} 
+
   };
 
   return (
     <div>
       {user ? (
-        user.message === "Signin successful" ? (
+        user.message === "Signin successful"? (
           <h1>
             Welcome {user.user_name || "User"}, User ID: {user.user_id || "N/A"}
           </h1>

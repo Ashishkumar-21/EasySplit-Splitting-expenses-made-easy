@@ -28,28 +28,25 @@ func SigninHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (events.A
 
 	err := json.Unmarshal([]byte(request.Body), &requestBody)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: 400, Headers: map[string]string{
-			"Access-Control-Allow-Origin": allowedOrigin,
-		}, Body: "Invalid request body"}, nil
+		return events.APIGatewayProxyResponse{StatusCode: 400,
+			Headers: map[string]string{
+				"Access-Control-Allow-Origin": allowedOrigin,
+			}, Body: "Invalid request body"}, nil
 	}
 	log.Println("Parsed Request Body:", requestBody)
 
-	var innerBody map[string]string
-	er := json.Unmarshal([]byte(request.Body), &innerBody)
-	if er != nil {
-		return events.APIGatewayProxyResponse{StatusCode: 400, Headers: map[string]string{
-			"Access-Control-Allow-Origin": allowedOrigin,
-		}, Body: "Invalid request body"}, nil
-	}
-
-	name := innerBody["Name"]
-	mobile := innerBody["mobile"]
-	log.Println("inner Body:", requestBody)
+	name := requestBody["Name"]
+	mobile := requestBody["mobile"]
+	log.Println("request Body:", requestBody)
 	log.Println("name :", name, "mobile :", mobile)
 	if name == "" || mobile == "" {
-		return events.APIGatewayProxyResponse{StatusCode: 400, Headers: map[string]string{
-			"Access-Control-Allow-Origin": allowedOrigin,
-		}, Body: `{"message": "empty inputs"}`}, nil
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Headers: map[string]string{
+				"Access-Control-Allow-Origin":  allowedOrigin,
+				"Access-Control-Allow-Methods": "OPTIONS, POST",
+				"Access-Control-Allow-Headers": "Content-Type",
+			}, Body: `{"message": "empty inputs"}`}, nil
 	}
 
 	var user models.Userauth
@@ -62,13 +59,15 @@ func SigninHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (events.A
 		log.Println(" New user proceeding to create account")
 		userID := generateUserID()
 		query := "insert into userauth(User_id, Mobile, Name) values(?, ?, ?)"
-		_, error := o.Raw(query, userID, mobile, name).Exec()
-		if error != nil {
+		_, errr := o.Raw(query, userID, mobile, name).Exec()
+		if errr != nil {
 			log.Println(" Database error:", err)
-			return events.APIGatewayProxyResponse{StatusCode: 500, Headers: map[string]string{
-				"Access-Control-Allow-Origin": allowedOrigin,
-			},
-				Body: `{"message": "User already exists please login"}`,
+			return events.APIGatewayProxyResponse{
+				StatusCode: 200,
+				Headers: map[string]string{
+					"Access-Control-Allow-Origin": allowedOrigin,
+				},
+				Body: `{"message": "Database error:"}`,
 			}, nil
 		}
 		responseBody, _ := json.Marshal(map[string]string{

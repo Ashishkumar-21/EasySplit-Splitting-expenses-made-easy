@@ -23,34 +23,23 @@ export const Signinform=({onSignin})=>{
                 throw new Error("invalid credentials")
             }
             
-            console.log(response)
+            console.log("before parsing Response:", response);
             let data = await response.json();
-            console.log("Raw API Response:", data);
-            
-            if (typeof data === "string") {
-                try {
-                    data = JSON.parse(data);
-                } catch (err) {
-                    console.error("Error parsing JSON:", err);
-                }
+            console.log("after parsing Response:", data);
+            if(data.user_id){
+                localStorage.setItem("user_id", data.user_id)
+                console.log("user_id ls", localStorage.getItem("user_id"))
             }
-            
-            if (data.body) {
-                try {
-                    data.body = JSON.parse(data.body);
-                } catch (err) {
-                    console.error("Error parsing body JSON:", err);
-                }
+            if(data.mobile){
+                localStorage.setItem("mobile", data.mobile)
+                console.log("mobile ls", localStorage.getItem("mobile"))
             }
+
+            onSignin(data); // Pass the correct object
             
-            console.log("Parsed API Response:", data);
-            onSignin(data.body); // Pass the correct object
-            
-            
-            onSignin(u)
         }
         catch(error){
-            alert(error.messege)
+            alert(error.message)
         }
 
     }

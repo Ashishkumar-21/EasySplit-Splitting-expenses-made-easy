@@ -22,7 +22,6 @@
 // 	Name    string `json:"name"`
 // }
 
-
 // func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 // 	var inputUser Userauth
 // 	errr := json.Unmarshal([]byte(request.Body), &inputUser)

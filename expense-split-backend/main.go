@@ -56,7 +56,7 @@ import (
 
 func ConnectDB() {
 	// Register MySQL database
-	err := orm.RegisterDataBase("default", "mysql", "root:Vaishuveera@2@tcp(0.tcp.in.ngrok.io:18599)/Splitwiser?charset=utf8&parseTime=True&loc=Local")
+	err := orm.RegisterDataBase("default", "mysql", "root:Vaishuveera@2@tcp(0.tcp.in.ngrok.io:18591)/Splitwiser?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		log.Fatal("Failed to register database:", err)
 		return
