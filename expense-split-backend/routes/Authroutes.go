@@ -174,6 +174,73 @@
 // 	lambda.Start(handler)
 // }
 
+// package routes
+
+// import (
+// 	"context"
+// 	"errors"
+// 	"math/rand"
+// 	"strconv"
+// 	"time"
+
+// 	"github.com/astaxie/beego/orm"
+// 	"github.com/aws/aws-lambda-go/events"
+// 	"github.com/aws/aws-lambda-go/lambda"
+// )
+
+// func generateUserID() string {
+// 	rand.Seed(time.Now().UnixNano())
+// 	return strconv.Itoa(rand.Intn(90000) + 10000)
+// }
+
+// // Initialize ORM
+// var o orm.Ormer
+
+// func handler(ctx context.Context, event interface{}) (interface{}, error) {
+// 	switch e := event.(type) {
+// 	case events.APIGatewayV2HTTPRequest:
+// 		return handleV2Request(e)
+// 	case events.APIGatewayProxyRequest:
+// 		return handleV1Request(e)
+// 	default:
+// 		return nil, errors.New("unsupported event type")
+// 	}
+// }
+
+// func handleV2Request(e events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+// 	// Handle API Gateway V2 request
+// 	// Example:
+// 	if e.RawPath == "/easysplit-create-expense" {
+// 		return AddExpenseHandler(o, e)
+// 	}
+// 	// Add more route handling as needed
+// 	return events.APIGatewayV2HTTPResponse{
+// 		StatusCode: 404,
+// 		Body:       "Not Found",
+// 	}, nil
+// }
+
+// func handleV1Request(e events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+// 	// Handle API Gateway V1 request
+// 	// Example:
+// 	if e.Path == "/easysplit-login" {
+// 		return LoginHandler(o, e)
+// 	} else if e.Path == "/easysplit-signin" {
+// 		return SigninHandler(o, e)
+// 	} else if e.Path == "/easysplit-get_friends" {
+// 		return GetDashboardHandler(o, e)
+// 	}
+// 	// Add more route handling as needed
+// 	return events.APIGatewayProxyResponse{
+// 		StatusCode: 404,
+// 		Body:       "Not Found",
+// 	}, nil
+// }
+
+// func InitLambda() {
+// 	lambda.Start(handler)
+// }
+
 package routes
 
 import (
@@ -205,6 +272,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return SigninHandler(o, request)
 	} else if request.Path == "/easysplit-get_friends" {
 		return GetDashboardHandler(o, request)
+	} else if request.Path == "/easysplit-login-createExpense" {
+		return AddExpenseHandler(o, request)
+	} else if request.Path == "/easysplit-settle-expense" {
+		return SettleExpenseHandler(o, request)
 	}
 
 	return events.APIGatewayProxyResponse{

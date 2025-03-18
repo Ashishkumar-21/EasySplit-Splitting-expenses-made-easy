@@ -57,7 +57,10 @@ func GetDashboardHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (ev
     WITH balances AS (
         SELECT 
             PayeeID AS friend_id,
-            SUM(Amount / 2) AS amount
+            SUM(CASE 
+                	WHEN description = 'settle' THEN Amount 
+                	ELSE Amount / 2 
+            	END) AS amount
         FROM global_transactions
         WHERE PayerID = ?
         GROUP BY PayeeID
@@ -66,7 +69,10 @@ func GetDashboardHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (ev
         
         SELECT 
             PayerID AS friend_id,
-            -SUM(Amount / 2) AS amount
+            SUM(CASE 
+                	WHEN description = 'settle' THEN -Amount 
+                	ELSE -Amount / 2 
+            	END) AS amount
         FROM global_transactions
         WHERE PayeeID = ?
         GROUP BY PayerID
@@ -74,7 +80,7 @@ func GetDashboardHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (ev
     SELECT 
         g.friend_id,
         u.name,
-        SUM(g.amount) AS netbalance
+        COALESCE(SUM(g.amount), 0) AS netbalance
     FROM balances g
     LEFT JOIN userauth u ON g.friend_id = u.user_id
     GROUP BY g.friend_id, u.name;

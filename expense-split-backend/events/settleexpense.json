@@ -1,0 +1,6 @@
+{
+    "path": "/easysplit-settle-expense",
+    "httpMethod": "POST",
+    "body":"{\"amount\":100,\"payer_id\":\"83593\",\"payee_id\":\"28395\"}"
+  }
+  
