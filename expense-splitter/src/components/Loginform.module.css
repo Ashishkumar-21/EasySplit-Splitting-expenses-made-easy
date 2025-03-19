@@ -7,7 +7,7 @@
     background-color: #f4f4f4;
   }
   
-  .loginBox {
+.loginBox {
     background: white;
     padding: 2rem;
     border-radius: 8px;
@@ -23,7 +23,7 @@
     color: #333;
   }
   
-  .inputField {
+.inputField {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
@@ -32,7 +32,7 @@
     font-size: 1rem;
   }
   
-  .loginBtn {
+.loginBtn {
     width: 100%;
     background-color: #007bff;
     color: white;
@@ -44,7 +44,26 @@
     margin-top: 10px;
   }
   
-  .loginBtn:hover {
+.loginBtn:hover {
     background-color: #0056b3;
   }
-  
+.displayelements{
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+
+
+}
+.positiveBalance {
+  background-color: lightgreen;
+}
+
+.negativeBalance {
+  background-color: lightcoral;
+}

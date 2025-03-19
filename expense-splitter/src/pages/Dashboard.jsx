@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import  styles from '../components/Loginform.module.css'
 
 export function Dashboard() {
+    const nav = useNavigate()
     const [dashboardData, setDashboardData] = useState([]);
     const userId = localStorage.getItem("user_id");
     const Mobile = localStorage.getItem("mobile");
@@ -38,12 +41,13 @@ export function Dashboard() {
     return (
         <>
             <h1>Dashboard</h1>
-            <button>Add expense</button>
-            <button>Settle up</button>
+            <button onClick={()=>nav("/addexpense")}>Add expense</button>
+            <button onClick={()=>nav("/settleexpense")}>Settle up</button>
             <ul>
                 {dashboardData?dashboardData.map((friend, index) => (
-                    <li key={index}>
+                    <li onClick={()=>nav(`/friend-transactions?friend_id=${friend.friend_id}`)} key={index} className={`${styles.displayelements} ${friend.netbalance >= 0 ? styles.positiveBalance : styles.negativeBalance}`}>
                         {friend.name} (ID: {friend.friend_id}) - Balance: {friend.netbalance}
+
                     </li>
                 )):<h2>No transactions entered </h2>}
             </ul>

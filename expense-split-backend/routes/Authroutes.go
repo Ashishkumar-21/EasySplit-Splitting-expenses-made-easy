@@ -276,6 +276,8 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return AddExpenseHandler(o, request)
 	} else if request.Path == "/easysplit-settle-expense" {
 		return SettleExpenseHandler(o, request)
+	} else if request.Path == "/easysplit-get_friend_transactions" {
+		return GetFriendHandler(o, request)
 	}
 
 	return events.APIGatewayProxyResponse{
@@ -292,4 +294,5 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 
 func InitLambda() {
 	lambda.Start(handler)
+
 }

@@ -61,7 +61,7 @@ func GetDashboardHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (ev
                 	WHEN description = 'settle' THEN Amount 
                 	ELSE Amount / 2 
             	END) AS amount
-        FROM global_transactions
+        FROM Global_transactions
         WHERE PayerID = ?
         GROUP BY PayeeID
         
@@ -73,7 +73,7 @@ func GetDashboardHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (ev
                 	WHEN description = 'settle' THEN -Amount 
                 	ELSE -Amount / 2 
             	END) AS amount
-        FROM global_transactions
+        FROM Global_transactions
         WHERE PayeeID = ?
         GROUP BY PayerID
     )

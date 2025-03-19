@@ -23,20 +23,20 @@ func AddExpenseHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (even
 			Body: "",
 		}, nil
 	}
-	var transaction models.Transaction
+	var Global_transactions models.Global_transactions
 
-	err := json.Unmarshal([]byte(request.Body), &transaction)
+	err := json.Unmarshal([]byte(request.Body), &Global_transactions)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: 400,
 			Headers: map[string]string{
 				"Access-Control-Allow-Origin": allowedOrigin,
 			}, Body: "Invalid request body"}, nil
 	}
-	log.Println("Parsed Request Body:", transaction)
+	log.Println("Parsed Request Body:", Global_transactions)
 
 	// Query User
-	query := "INSERT INTO global_transactions(PayerID, PayeeID, Amount, Description) values(?,?,?,?)"
-	_, errr := o.Raw(query, transaction.PayerID, transaction.PayeeID, transaction.Amount, transaction.Description).Exec()
+	query := "INSERT INTO Global_transactions(PayerID, PayeeID, Amount, Description) values(?,?,?,?)"
+	_, errr := o.Raw(query, Global_transactions.PayerID, Global_transactions.PayeeID, Global_transactions.Amount, Global_transactions.Description).Exec()
 	if errr != nil {
 		log.Println(" Database error:", errr)
 		return events.APIGatewayProxyResponse{
