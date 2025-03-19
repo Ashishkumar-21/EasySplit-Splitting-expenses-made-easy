@@ -98,10 +98,30 @@ func GetDashboardHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (ev
 			}, Body: `{"message": "Failed to fetch dashboard data"}`}, nil
 	}
 
+	var totalbalance float64
+	var Owedbalance float64
+
+	for _, trs := range results {
+		totalbalance += trs.NetBalance
+		if trs.NetBalance > 0 {
+			Owedbalance += trs.NetBalance
+		}
+	}
+
+	var UserName string
+	errr := o.Raw(`SELECT name FROM userauth WHERE user_id=?`, userID).QueryRow(&UserName)
+	if errr != nil {
+		log.Println("Error fetching user's name:", err)
+		UserName = "Unknown" // Default if not found
+	}
+
 	responseBody, _ := json.Marshal(map[string]interface{}{
-		"code":    200,
-		"message": "Dashboard data retrieved successfully",
-		"data":    results,
+		"code":            200,
+		"message":         "Dashboard data retrieved successfully",
+		"data":            results,
+		"userName":        UserName,
+		"Balance":         totalbalance,
+		"PositiveBalance": Owedbalance,
 	})
 	log.Printf("Query Results: %+v\n", results)
 	log.Println("Userid:", userID)

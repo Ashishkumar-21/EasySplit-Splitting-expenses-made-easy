@@ -9,6 +9,8 @@ export function FriendTransactions() {
     const userId = localStorage.getItem("user_id");
     const searchParams = new URLSearchParams(location.search);
     const friendId = searchParams.get("friend_id");
+    const [FriendName, setFriendName] = useState("");
+    const [Balance, setBalance] = useState(0);
 
     useEffect(() => {
         if (!userId) {
@@ -31,7 +33,10 @@ export function FriendTransactions() {
 
                 const data = await response.json();
                 console.log("friend Data:", data.data);
+                console.log("friend Name:", data.Friend_Name);
+                setFriendName(data.Friend_Name)
                 setFriendData(data.data);
+                setBalance(data.Balance)
             } catch (error) {
                 alert(error.message);
             }
@@ -42,7 +47,8 @@ export function FriendTransactions() {
 
     return (
         <>
-            <h1>You and Your friend</h1>
+            <h1>You and {FriendName}</h1>
+            <h2>{Balance>0?`You get ${Balance}`:`You owe ${Balance}`}</h2>
             <button onClick={()=>nav("/addexpense")}>Add expense</button>
             <button onClick={()=>nav("/settleexpense")}>Settle up</button>
             <ul>
@@ -51,12 +57,15 @@ export function FriendTransactions() {
                         <li
                             key={index}
                             className={`${styles.displayelements} ${
-                                transaction.amount >= 0
+                                transaction.status == "Paid"
                                     ? styles.positiveBalance
                                     : styles.negativeBalance
                             }`}
                         >
-                              {transaction.description} - Amount: {transaction.amount}
+                            {transaction.description=="settle"
+                            ? `${transaction.description} - Amount: ${transaction.amount}`
+                            : `${transaction.description} - Amount: ${transaction.amount} - Share: ${transaction.share} ${transaction.status}`}
+
                         </li>
                     ))
                 ) :<h2>No transactions entered </h2>}
