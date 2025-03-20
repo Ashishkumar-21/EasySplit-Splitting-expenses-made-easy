@@ -39,7 +39,7 @@ func GetFriendHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (event
 
 	var results []models.Global_transactions
 
-	query := `SELECT * FROM Global_transactions WHERE (PayerID=? AND PayeeID=?) OR (PayerID=? AND PayeeID=?)`
+	query := `SELECT * FROM Global_transactions WHERE (PayerID=? AND PayeeID=?) OR (PayerID=? AND PayeeID=?) ORDER BY ID DESC`
 	numRows, err := o.Raw(query, UserID, FriendID, FriendID, UserID).QueryRows(&results)
 	if numRows == 0 {
 		log.Println("No transaction were made")
@@ -69,13 +69,25 @@ func GetFriendHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (event
 		var status string
 		var share float64
 		if result.PayerID == UserID {
-			status = "Paid"
-			share = result.Amount / 2
-			balance += share
+			if result.Description == "settle" {
+				status = "Paid"
+				share = result.Amount
+				balance += share // Subtract instead of adding
+			} else {
+				status = "Paid"
+				share = result.Amount / 2
+				balance += share
+			}
 		} else {
-			status = "Owed"
-			share = result.Amount / 2
-			balance -= share
+			if result.Description == "settle" {
+				status = "Owed"
+				share = result.Amount
+				balance -= share // Add instead of subtracting
+			} else {
+				status = "Owed"
+				share = result.Amount / 2
+				balance -= share
+			}
 		}
 		responseTransactions = append(responseTransactions, TransactionResponse{
 			Description: result.Description,
