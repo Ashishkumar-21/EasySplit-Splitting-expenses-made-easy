@@ -1,0 +1,146 @@
+.body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    text-align: center;
+    background-color: #f4f4f4;
+
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    width: 50vw;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+
+}
+
+.dashboardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 70%;
+    padding: 10px 10px;
+}
+
+.heading {
+    font-size: 2em;
+    font-weight: 500;
+    margin: 0;
+}
+
+.dashboardHeader button {
+    margin-left: auto;
+}
+
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+button {
+    margin: 5px;
+    padding: 12px 15px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    transition: 0.3s;
+    width: 120px;
+    text-transform: uppercase;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.displayelements {
+    width: 100%;
+    background-color: #007bff;
+    color: black;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.Balances {
+    width: 170px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: cornflowerblue;
+
+}
+
+.component {
+    display: flex;
+
+}
+
+
+.positiveBalance {
+    background-color: lightgreen;
+}
+
+.negativeBalance {
+    background-color: lightcoral;
+}
+
+.transaction-list {
+    width: 100%;
+    max-width: 450px;
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.transaction-item {
+    padding: 12px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+ol {
+    width: 50%;
+    padding: 0;
+    margin-top: 10px;
+    list-style: none;
+    max-height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }

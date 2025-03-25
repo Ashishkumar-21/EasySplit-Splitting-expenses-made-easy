@@ -12,7 +12,7 @@ import (
 
 func ConnectDB() {
 	// Register MySQL database
-	dsn := "root:Vaishuveera@2@tcp(0.tcp.in.ngrok.io:12286)/Splitwiser?charset=utf8&parseTime=True&loc=Local"
+	dsn := "root:Vaishuveera@2@tcp(0.tcp.in.ngrok.io:14601)/Splitwiser?charset=utf8&parseTime=True&loc=Local"
 	err := orm.RegisterDataBase("default", "mysql", dsn)
 	if err != nil {
 		log.Fatal("Failed to register database:", err)
