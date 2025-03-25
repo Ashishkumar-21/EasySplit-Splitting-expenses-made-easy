@@ -60,7 +60,7 @@ func GetFriendHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (event
 				"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 				"Access-Control-Allow-Headers": "Content-Type, Authorization",
 				"Content-Type":                 "application/json",
-			}, Body: `{"message": "Failed to fetch dashboard data"}`}, nil
+			}, Body: `{"message": "Check your credentilas"}`}, nil
 	}
 
 	var balance float64

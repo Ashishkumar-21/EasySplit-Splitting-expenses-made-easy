@@ -1,0 +1,214 @@
+:root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #242424;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  @media (prefers-color-scheme: light) {
+    :root {
+      color: #213547;
+      background-color: #ffffff;
+    }
+  }
+  
+  .heading {
+    font-size: 3em;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    width: 100vw;
+    text-align: center;
+    background-color: #f4f4f4;
+    overflow-y: auto;
+    padding: 20px;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+  }
+  
+  .dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 80vh;
+    width: 50vw;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    margin-top: 30px;
+    max-width: 90%; /* Ensure dashboard does not exceed screen width */
+    word-wrap: break-word; /* Prevent long words from causing overflow */
+  }
+  
+  /* Responsive for smaller screens */
+  @media (max-width: 1024px) {
+    .dashboard {
+      width: 70vw;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard {
+      width: 90vw;
+      padding: 15px;
+    }
+  }
+  
+  .username {
+    display: inline-block;
+    padding: 5px;
+    margin: 10px;
+    font-size: 2em;
+    font-weight: 500;
+  }
+  
+  .dashboardHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    border-radius: 10px;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  
+  button {
+    margin: 5px;
+    padding: 12px 15px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    transition: 0.3s;
+    width: 100px;
+    text-transform: uppercase;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  .displayelements {
+    width: 100%;
+    background-color: #007bff;
+    color: black;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 10px;
+  }
+  
+  /* Balance section */
+  .Balances {
+    width: 170px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: cornflowerblue;
+    text-align: center;
+  }
+  
+  /* Adjust component layout for responsiveness */
+  .component {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  /* Responsive typography */
+  @media (max-width: 768px) {
+    .heading {
+      font-size: 2em;
+    }
+  
+    .username {
+      font-size: 1.5em;
+    }
+  
+    button {
+      width: 90px;
+      font-size: 12px;
+      padding: 10px;
+    }
+  
+    .Balances {
+      width: 140px;
+    }
+  }
+  
+  /* Limit transactions width inside dashboard */
+  .transactions {
+    width: 100%;
+    max-width: 600px; /* Limit max width */
+    margin: 10px auto; /* Center transactions */
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.1);
+    overflow-x: hidden; /* Ensure no horizontal scrolling */
+  }
+  
+  /* Scrollable transaction list */
+  ol {
+    width: 100%;
+    padding: 0;
+    margin-top: 10px;
+    list-style: none;
+    max-height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+  }
+  
+  /* Responsive Transactions */
+  @media (max-width: 768px) {
+    .transactions {
+      width: 90%;
+      max-width: 100%;
+    }
+  }
+  
+  /* Transaction balance colors */
+  .positiveBalance {
+    background-color: lightgreen;
+  }
+  
+  .negativeBalance {
+    background-color: lightcoral;
+  }

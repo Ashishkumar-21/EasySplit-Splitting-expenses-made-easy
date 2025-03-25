@@ -5,6 +5,7 @@ import (
 	"expense-split-backend/routes"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql" // MySQL driver
@@ -12,7 +13,7 @@ import (
 
 func ConnectDB() {
 	// Register MySQL database
-	dsn := "root:Vaishuveera@2@tcp(0.tcp.in.ngrok.io:14601)/Splitwiser?charset=utf8&parseTime=True&loc=Local"
+	dsn := os.Getenv("DSN")
 	err := orm.RegisterDataBase("default", "mysql", dsn)
 	if err != nil {
 		log.Fatal("Failed to register database:", err)

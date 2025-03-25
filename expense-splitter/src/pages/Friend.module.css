@@ -1,68 +1,68 @@
+.friendTransactionsContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 80vh;
+    width: 50vw;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-top: 30px;
+    max-width: 90%;
+    word-wrap: break-word;
+}
+
 .body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    justify-content: flex-start;
+    min-height: 100vh;
     width: 100vw;
     text-align: center;
     background-color: #f4f4f4;
+    overflow-y: auto;
+    padding: 20px;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+  }
 
-}
-
-.dashboard {
+  .dashboardHeader {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 80vh;
-    width: 50vw;
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
-
-}
-
-.dashboardHeader {
-    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-around;
-    width: 70%;
-    padding: 10px 10px;
-}
+    width: 100%;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    border-radius: 10px;
+  }
 
-.heading {
+.friendHeading {
     font-size: 2em;
     font-weight: 500;
-    margin: 0;
-}
-
-.dashboardHeader button {
-    margin-left: auto;
-}
-
-
-h1 {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-h2 {
-    font-size: 1.2rem;
-    color: #333;
+    text-align: center;
     margin-bottom: 10px;
 }
 
-.button-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 10px;
+.balanceInfo {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
 }
 
+.buttonContainer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
 button {
-    margin: 5px;
     padding: 12px 15px;
     font-size: 13px;
     font-weight: bold;
@@ -72,42 +72,34 @@ button {
     background-color: #007bff;
     color: white;
     transition: 0.3s;
-    width: 120px;
+    min-width: 120px; /* Ensures "Dashboard" fits well */
     text-transform: uppercase;
     box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.2);
+    text-align: center;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-.displayelements {
+.transactionList {
     width: 100%;
-    background-color: #007bff;
-    color: black;
-    border: none;
+    max-width: 600px;
+    margin: 10px auto;
     padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.1);
+    overflow-x: hidden;
+}
+
+.transactionItem {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
     font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
 }
 
-.Balances {
-    width: 170px;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 5px;
-    background-color: cornflowerblue;
-
-}
-
-.component {
-    display: flex;
-
-}
-
-
+/* Positive & Negative Balance */
 .positiveBalance {
     background-color: lightgreen;
 }
@@ -116,31 +108,22 @@ button:hover {
     background-color: lightcoral;
 }
 
-.transaction-list {
-    width: 100%;
-    max-width: 450px;
-    list-style-type: none;
-    padding: 0;
-    margin: 20px 0;
-}
+/* Responsive Design */
+@media (max-width: 768px) {
+    .friendTransactionsContainer {
+        width: 90vw;
+        padding: 15px;
+    }
 
-.transaction-item {
-    padding: 12px;
-    border-radius: 5px;
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 1rem;
-    font-weight: bold;
+    .friendHeading {
+        font-size: 1.8em;
+    }
+
+    .balanceInfo {
+        font-size: 1.2em;
+    }
+
+    .transactionList {
+        width: 90%;
+    }
 }
-ol {
-    width: 50%;
-    padding: 0;
-    margin-top: 10px;
-    list-style: none;
-    max-height: 250px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }

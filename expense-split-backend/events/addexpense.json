@@ -1,6 +1,6 @@
 {
     "path": "/easysplit-login-createExpense",
     "httpMethod": "POST",
-    "body":"{\"amount\":100,\"description\":\"pens\",\"payer_id\":\"28395\",\"payee_id\":\"83593\"}"
+    "body":"{\"amount\":100,\"description\":\"pens\",\"payer_id\":\"28395\",\"payee_id\":\"80000000\"}"
   }
   

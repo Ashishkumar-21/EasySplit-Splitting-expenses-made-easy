@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import  styles from '../components/Loginform.module.css'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export function Addexpense() {
-    const [Friend_id, setid]=useState("")
+    const navigate = useNavigate(); 
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const friend_id = searchParams.get("friend_id"); 
+
+    const [Friend_id, setid]=useState(""||friend_id)
     const [Amount, setcost]=useState("")
     const [Desc, setdesc]=useState("")
-    const navigate = useNavigate(); 
+
 
     const handleSubmit= async (e)=>{
         e.preventDefault();//prevents default form submission behavour which reloads the page
@@ -36,7 +41,7 @@ export function Addexpense() {
             console.log("after parsing Response:", data);
             if(data.message=="expense added"){
                 window.alert("Added expense")
-                navigate("/dashboard")
+                navigate(`/friend-transactions?friend_id=${friend_id}`)
             }
         }
         catch(error){

@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import  styles from '../components/Loginform.module.css'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export function Settleexpense() {
-    const [Friend_id, setid]=useState("")
+    const navigate = useNavigate(); 
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const friend_id = searchParams.get("friend_id"); 
+
+    const [Friend_id, setid]=useState(""||friend_id)
     const [Amount, setcost]=useState(0)
     // const [Desc, setdesc]=useState("")
-    const navigate = useNavigate(); 
 
     const handleSubmit= async (e)=>{
         e.preventDefault();//prevents default form submission behavour which reloads the page
@@ -37,7 +41,8 @@ export function Settleexpense() {
             console.log("after parsing Response:", data);
             if(data.message=="settle added"){
                 window.alert("Added Settle")
-                navigate("/dashboard")
+                // navigate("/dashboard")
+                navigate(`/friend-transactions?friend_id=${friend_id}`)
             }
         }
         catch(error){

@@ -3,6 +3,7 @@ package routes
 import (
 	"encoding/json"
 	"expense-split-backend/models"
+	"fmt"
 	"log"
 
 	"github.com/astaxie/beego/orm"
@@ -35,6 +36,25 @@ func SettleExpenseHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (e
 	log.Println("Parsed Request Body:", Global_transactions)
 
 	// Query User
+	var user models.Userauth
+	query1 := "SELECT * FROM userauth WHERE user_id = ? LIMIT 1"
+	er := o.Raw(query1, Global_transactions.PayeeID).QueryRow(&user)
+
+	if er != nil {
+		if er == orm.ErrNoRows {
+			log.Println(" User not found")
+			return events.APIGatewayProxyResponse{StatusCode: 400, Body: "Invalid credentials",
+				Headers: map[string]string{
+					"Access-Control-Allow-Origin": allowedOrigin,
+				}}, nil
+		}
+		log.Println(" Database error:", err)
+		return events.APIGatewayProxyResponse{StatusCode: 500, Body: fmt.Sprintf("Database error: %s", err),
+			Headers: map[string]string{
+				"Access-Control-Allow-Origin": allowedOrigin,
+			}}, nil
+	}
+
 	query := "INSERT INTO Global_transactions(PayerID, PayeeID, Amount, Description) values(?,?,?,?)"
 	_, errr := o.Raw(query, Global_transactions.PayerID, Global_transactions.PayeeID, Global_transactions.Amount, Global_transactions.Description).Exec()
 	if errr != nil {
