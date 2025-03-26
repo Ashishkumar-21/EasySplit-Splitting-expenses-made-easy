@@ -1,8 +1,6 @@
 # Splitwise
 /Splitwise
-  
   /expense-splitter
-    
     /src
       /components
         /Loader.jsx
