@@ -42,7 +42,7 @@ export function Settleexpense() {
             if(data.message=="settle added"){
                 window.alert("Added Settle")
                 // navigate("/dashboard")
-                navigate(`/friend-transactions?friend_id=${friend_id}`)
+                navigate(`/friend-transactions?friend_id=${Friend_id}`)
             }
         }
         catch(error){

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Friend.module.css";
 import { Loader } from "../components/Loader";
+
+
 export function FriendTransactions() {
     const nav = useNavigate();
     const location = useLocation();
@@ -68,10 +70,10 @@ export function FriendTransactions() {
                             </div>
                         </div>
                         <h2 className={styles.balanceInfo}>
-                            {Balance > 0 ? `You get ₹${Balance}` : `You owe ₹${Balance}`}
+                            {Balance > 0 ? `You get ₹${Math.abs(Balance)}` : `You owe ₹${Math.abs(Balance)}`}
                         </h2>
                         <ul className={styles.transactionList}>
-                            {FriendData.length > 0 ? (
+                            {FriendData? (
                                 FriendData.map((transaction, index) => (
                                     <li
                                         key={index}

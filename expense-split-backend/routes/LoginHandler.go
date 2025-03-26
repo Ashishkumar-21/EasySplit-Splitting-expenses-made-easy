@@ -27,10 +27,12 @@ func LoginHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (events.AP
 	if err != nil {
 		if err == orm.ErrNoRows {
 			log.Println(" User not found")
-			return events.APIGatewayProxyResponse{StatusCode: 400, Body: "Invalid credentials"}, nil
+			return events.APIGatewayProxyResponse{StatusCode: 400, Headers: map[string]string{
+				"Access-Control-Allow-Origin": "*"}, Body: "Invalid credentials"}, nil
 		}
 		log.Println(" Database error:", err)
-		return events.APIGatewayProxyResponse{StatusCode: 500, Body: fmt.Sprintf("Database error: %s", err)}, nil
+		return events.APIGatewayProxyResponse{StatusCode: 500, Headers: map[string]string{
+			"Access-Control-Allow-Origin": "*"}, Body: fmt.Sprintf("Database error: %s", err)}, nil
 	}
 
 	responseBody, _ := json.Marshal(map[string]string{
