@@ -1,6 +1,0 @@
-{
-    "path": "/easysplit-signin",
-    "httpMethod": "POST",
-    "body": "{ \"Name\": \"Varun\", \"mobile\": \"9876543210\" }"
-  }
-  

@@ -1,8 +1,0 @@
-{
-    "path": "/easysplit-get_friend_transactions",
-    "queryStringParameters": {
-      "friend_id": "83593",
-      "user_id":"28395"
-    }
-  }
-  
