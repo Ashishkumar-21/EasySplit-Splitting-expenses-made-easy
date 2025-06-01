@@ -10,6 +10,7 @@ require (
 
 require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 )
