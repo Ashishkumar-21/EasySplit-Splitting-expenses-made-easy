@@ -94,7 +94,12 @@ export function Addexpense() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch("http://localhost:9000/get-all-users");
+        const token = localStorage.getItem("checkit-token"); // ✅ Add token
+        const response = await fetch("http://localhost:9000/get-all-users", {
+          headers: {
+            "Authorization": `Bearer ${token}`, // ✅ Add token in headers
+          },
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch users");
         }
@@ -116,12 +121,15 @@ export function Addexpense() {
       return;
     }
     try {
+      const token = localStorage.getItem("checkit-token"); // ✅ Add token
+
       //const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-login-createExpense`, {
 
       const response = await fetch("http://localhost:9000/easysplit-login-createExpense", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // ✅ Add token to headers
         },
         body: JSON.stringify({
           payer_id: localStorage.getItem("user_id"),
@@ -131,6 +139,14 @@ export function Addexpense() {
           notes: Notes,
         }),
       });
+
+      if (response.status === 401) {
+        alert("Session expired. Please log in again."); // ✅ Alert on 401
+        localStorage.removeItem("checkit-token");
+        localStorage.removeItem("user_id");
+        navigate("/login"); // ✅ Redirect to login
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("Failed to add expense");

@@ -87,23 +87,24 @@ export function Settleexpense() {
   const [FriendName, setname] = useState(friendName || "");
   const [Amount, setAmount] = useState(amountFromDashboard || "");
 
-
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!Friend_id || !Amount) {
       window.alert("Please enter all the details");
       return;
     }
-
+    
     try {
+      const token = localStorage.getItem("checkit-token"); // Get token
       const response = await fetch(`http://localhost:9000/easysplit-settle-expense`, {
             // const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-settle-expense `, {
 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`  // 🔐 Attach token
         },
         body: JSON.stringify({
           payer_id: localStorage.getItem("user_id"),
@@ -112,6 +113,17 @@ export function Settleexpense() {
           description: "settle",
         }),
       });
+
+      console.log("Fetch successful"); // ✅ Won’t run if fetch fails
+      console.log("Response status:", response.status);
+
+      if (response.status === 401) {
+        window.alert("Session expired. Please log in again.");
+        localStorage.removeItem("checkit-token");
+        localStorage.removeItem("user_id");
+        navigate("/login");  // Redirect to login page
+        return;
+      }
 
       if (!response.ok) throw new Error("Invalid response");
 

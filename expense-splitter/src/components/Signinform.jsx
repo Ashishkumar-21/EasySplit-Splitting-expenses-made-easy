@@ -70,7 +70,9 @@ import { Snackbar, Alert } from '@mui/material';
 export const SignInForm = ({ onSignin }) => {
     const [Name, setName] = useState("");
     const [MobileNo, setNo] = useState("");
-    const [errors, setErrors] = useState({ name: "", mobile: "" });
+     
+    const [errors, setErrors] = useState({ name: "", mobile: "", password: "" }); // <-- CHANGE: Added password error
+    const [Password, setPassword] = useState("");   //<-- CHANGE: Added state for password
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
@@ -81,6 +83,7 @@ export const SignInForm = ({ onSignin }) => {
     const validate = () => {
         let nameError = "";
         let mobileError = "";
+        let passwordError = ""; // <-- CHANGE: Validate password
 
         if (Name.trim() === "") {
             nameError = "Name is required";
@@ -92,9 +95,15 @@ export const SignInForm = ({ onSignin }) => {
             mobileError = "Phone number must be 10 digits";
         }
 
-        setErrors({ name: nameError, mobile: mobileError });
+        if (Password.trim() === "") {
+            passwordError = "Password is required";
+        } else if (Password.length < 6) {
+            passwordError = "Password must be at least 6 characters";
+        }
 
-        return !(nameError || mobileError);
+        setErrors({ name: nameError, mobile: mobileError, password: passwordError });
+
+        return !(nameError || mobileError || passwordError);
     };
     const showSnackbar = (message, severity) => {
         setSnackbar({ open: true, message, severity });
@@ -105,7 +114,7 @@ export const SignInForm = ({ onSignin }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-        // `https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-signin`
+        //  const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-signin` ,{
         // const response = await fetch("http://localhost:9000/easysplit-signin", {
         try {
               const response = await fetch("http://localhost:9000/easysplit-signin", {
@@ -113,14 +122,16 @@ export const SignInForm = ({ onSignin }) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ Name, mobile: MobileNo }),
+                body: JSON.stringify({ Name, mobile: MobileNo, password: Password }), // <-- CHANGE: Added password to request body
             });
 
             if (!response.ok) throw new Error("Backend not working, Sorry for the discomfort");
 
             const data = await response.json();
             localStorage.setItem("user_id", data.user_id);
-            localStorage.setItem("mobile", data.mobile);
+            // localStorage.setItem("mobile", data.mobile);
+            localStorage.setItem("checkit-token", data.token); // <-- CHANGE: Store JWT token in localStorage
+
             onSignin(data);
             showSnackbar('Sign in successful!', 'success');
 
@@ -168,6 +179,18 @@ export const SignInForm = ({ onSignin }) => {
                         onChange={(e) => setNo(e.target.value)}
                     />
                     {errors.mobile && <div className={styles.errorText}>{errors.mobile}</div>}
+                </label>
+
+                <span>Password</span> {/* <-- CHANGE: Label for password */}
+                <label className={styles.label}>
+                    <input
+                        type="password"
+                        className={`${styles.input} ${errors.password ? styles.inputError : ""}`} // <-- CHANGE: style password input
+                        placeholder="Enter your password"
+                        value={Password}
+                        onChange={(e) => setPassword(e.target.value)} // <-- CHANGE: bind password input
+                    />
+                    {errors.password && <div className={styles.errorText}>{errors.password}</div>}
                 </label>
 
                 <button className={styles.submitButton} type="submit">Sign in</button>

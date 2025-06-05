@@ -93,12 +93,12 @@
 // }
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.css";
 import { Loader } from "../components/Loader";
+import { useNavigate } from "react-router-dom";
 
 export function Dashboard() {
-    const nav = useNavigate();
+    const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState([]);
     const userId = localStorage.getItem("user_id");
     const Mobile = localStorage.getItem("mobile");
@@ -106,10 +106,12 @@ export function Dashboard() {
     const [netbalance, setNet] = useState(0);
     const [positivebalance, setPos] = useState(0);
     const [loading, setLoading] = useState(false);
-
+    const token = localStorage.getItem("checkit-token"); // COMMENT: token retrieved to authorize API requests
+    // console.log("Data token:", token);  //
     useEffect(() => {
         if (!userId) {
-            alert("User ID not found!");
+            alert("User ID not found! Please login");
+            navigate("/login")
             return;
         }
 
@@ -118,7 +120,24 @@ export function Dashboard() {
             try {
                 // const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-get_friends?user_id=${userId}&mobile=${Mobile}`);
 
-                const response = await fetch(`http://localhost:9000/easysplit-get_friends?user_id=${userId}&mobile=${Mobile}`);
+                const response = await fetch(`http://localhost:9000/easysplit-get_friends?user_id=${userId}&mobile=${Mobile}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}` // CHANGE: Send JWT token in Authorization header
+                        }
+                    }
+                );
+
+                if (response.status === 401) {
+                    alert("Session expired. Please log in again."); // ✅ Alert on 401
+                    localStorage.removeItem("checkit-token");
+                    localStorage.removeItem("user_id");
+                    navigate("/login"); // ✅ Redirect to login
+                    return;
+                }
+                
                 if (!response.ok) throw new Error("Invalid response");
 
                 const data = await response.json();
@@ -127,14 +146,22 @@ export function Dashboard() {
                 setPos(data.PositiveBalance);
                 setName(data.userName);
             } catch (error) {
-                alert(error.message);
+                alert(error.message || "Something went wrong");
             } finally {
                 setLoading(false);
             }
         };
 
         getFriends();
-    }, [userId]);
+    }, []); // ✅ No dependency on userId/token; they're constant during this mount
+
+
+    const handleLogout = () => {
+        // CHANGE: Remove token and user details on logout
+        localStorage.removeItem("checkit-token"); // COMMENT: Token cleared on logout
+        localStorage.removeItem("user_id");
+        navigate("/"); // COMMENT: Redirect to login page
+    };
 
 
     return loading ? (
@@ -155,7 +182,7 @@ export function Dashboard() {
                     <a className={`${styles.active}`} href="/dashboard">Dashboard</a>
                     <a>Friends</a>
                     <a>Groups</a>
-                    <a className={styles.link} onClick={() => nav("/")}>Log Out</a>
+                    <a className={styles.link} onClick={handleLogout}>Log Out</a> 
                 </nav>
             </header>
 
@@ -165,7 +192,7 @@ export function Dashboard() {
                 </div>
                 <div className={styles.dashboardTitle}>Dashboard
                     <div className={styles.footerButtons}>
-                        <button className={styles.addExpenseButton} onClick={() => nav("/addexpense")}>Add Expense</button>
+                        <button className={styles.addExpenseButton} onClick={() => navigate("/addexpense")}>Add Expense</button>
                         {/* <button onClick={() => nav("/settleexpense")}>Settle Expense</button> */}
                     </div>
                 </div>
@@ -191,7 +218,7 @@ export function Dashboard() {
                             <div className={styles.friendRow} key={index}>
                                 <div
                                     onClick={() =>
-                                        nav(`/friend-transactions?friend_id=${friend.friend_id}`)
+                                        navigate(`/friend-transactions?friend_id=${friend.friend_id}`)
                                     }
                                     className={`${styles.friendCard} ${friend.netbalance >= 0
                                         ? styles.positive
@@ -215,7 +242,7 @@ export function Dashboard() {
                                         onClick={(e) => {
                                             if (friend.netbalance >= 0) return;
                                             e.stopPropagation();
-                                            nav(
+                                            navigate(
                                                 `/settleexpense?friend_id=${friend.friend_id}&amount=${Math.abs(
                                                     friend.netbalance
                                                 )}&name=${friend.name}`

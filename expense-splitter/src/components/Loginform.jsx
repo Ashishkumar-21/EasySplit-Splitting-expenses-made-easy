@@ -58,6 +58,7 @@ export const Loginform = ({ isLogin }) => {
   const [ID, setID] = useState("");
   const [MobileNo, setNo] = useState("");
   const [errors, setErrors] = useState({ id: false, phone: false, message: "" });
+  const [Password, setPassword] = useState(""); //  Added state for password
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -101,16 +102,24 @@ export const Loginform = ({ isLogin }) => {
     // const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-login?user_id=${ID}&mobile=${MobileNo}`);
 
     try {
-      const response = await fetch(
-        `http://localhost:9000/easysplit-login?user_id=${ID}&mobile=${MobileNo}`
-      );
+      const response = await fetch("http://localhost:9000/easysplit-login", {
+        method: "POST", //  Changed from GET to POST
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: ID,
+          mobile: MobileNo,
+          password: Password, //  Send password in request body
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Invalid credentials");
       }
 
       const data = await response.json();
-      const { message, user_id, mobile } = data;
+      const { message, user_id, mobile, token } = data;
 
       if (user_id) {
         localStorage.setItem("user_id", user_id);
@@ -121,8 +130,11 @@ export const Loginform = ({ isLogin }) => {
         localStorage.setItem("mobile", mobile);
         setNo(mobile);
       }
+      if (token) {
+        localStorage.setItem("checkit-token", token); //  Store token for future auth
+      }
 
-      isLogin({ ID: user_id, MobileNo: mobile, message });
+      isLogin({ ID: user_id, MobileNo: mobile, message, token }); //  Pass token up
     } catch (error) {
       alert(error.message);
     }
@@ -171,6 +183,17 @@ export const Loginform = ({ isLogin }) => {
             value={MobileNo}
             onChange={(e) => setNo(e.target.value)}
             className={`${styles.input} ${errors.phone ? styles.inputError : ""}`}
+          />
+          {errors.message && (
+            <div className={styles.errorMessage}>{errors.message}</div>
+          )}
+          {/*  Password input field */}
+          <input
+            type="password"
+            placeholder="Password"
+            value={Password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={styles.input}
           />
           {errors.message && (
             <div className={styles.errorMessage}>{errors.message}</div>

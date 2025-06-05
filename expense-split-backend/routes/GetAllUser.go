@@ -54,6 +54,7 @@ func GetAllUsersHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, GET")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // ✅ Fixed
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -84,6 +85,7 @@ func GetAllUsersHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer
 	w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, GET")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // ✅ Fixed
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseBody)

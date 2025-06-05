@@ -22,14 +22,45 @@ func AddExpenseHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (even
 			Headers: map[string]string{
 				"Access-Control-Allow-Origin":  allowedOrigin,
 				"Access-Control-Allow-Methods": "OPTIONS, POST",
-				"Access-Control-Allow-Headers": "Content-Type",
+				"Access-Control-Allow-Headers": "Content-Type, Authorization", // <-- Added Authorization
 			},
 			Body: "",
 		}, nil
 	}
+
+	// ✅ NEW: JWT token validation
+	authHeader := request.Headers["Authorization"]
+	if authHeader == "" || len(authHeader) < 8 || authHeader[:7] != "Bearer " {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 401,
+			Headers: map[string]string{
+				"Access-Control-Allow-Origin": allowedOrigin,
+			},
+			Body: "Unauthorized - missing or invalid token format",
+		}, nil
+	}
+	tokenString := authHeader[7:]
+
+	// 🔐 Validate token (you must have this helper implemented already)
+	claims, err := validateJWT(tokenString)
+	if err != nil {
+		log.Println("JWT validation failed:", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 401,
+			Headers: map[string]string{
+				"Access-Control-Allow-Origin": allowedOrigin,
+			},
+			Body: "Unauthorized - invalid token",
+		}, nil
+	}
+
+	// 🔍 Optional: Log claims or use user_id/email from token
+	log.Println("Authenticated user claims:", claims)
+
+
 	var Global_transactions models.Global_transactions
 
-	err := json.Unmarshal([]byte(request.Body), &Global_transactions)
+	err = json.Unmarshal([]byte(request.Body), &Global_transactions)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: 400,
 			Headers: map[string]string{
@@ -105,15 +136,36 @@ func AddExpenseHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer)
 	if r.Method == http.MethodOptions {
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // ✅ Added Authorization
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
+	// ✅ Validate JWT token
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" || len(authHeader) < 8 || authHeader[:7] != "Bearer " {
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		http.Error(w, "Unauthorized - missing or invalid token format", http.StatusUnauthorized)
+		return
+	}
+	tokenString := authHeader[7:]
+
+	claims, err := validateJWT(tokenString) // ✅ Use your JWT validation logic
+	if err != nil {
+		log.Println("JWT validation failed:", err)
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		http.Error(w, "Unauthorized - invalid token", http.StatusUnauthorized)
+		return
+	}
+
+	// ✅ Proceed if token valid
+	log.Println("Authenticated user claims:", claims)
+
 	// Decode request body
 	var globalTxn models.Global_transactions
-	err := json.NewDecoder(r.Body).Decode(&globalTxn)
+	err = json.NewDecoder(r.Body).Decode(&globalTxn)
 	if err != nil {
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin) // ✅ Added CORS for error
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -125,6 +177,7 @@ func AddExpenseHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer)
 	errr := o.Raw(query1, globalTxn.PayeeID).QueryRow(&user)
 
 	if errr != nil {
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin) // ✅ Added CORS for error
 		if errr == orm.ErrNoRows {
 			log.Println("User not found")
 			http.Error(w, "Invalid credentials", http.StatusBadRequest)
@@ -140,6 +193,7 @@ func AddExpenseHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer)
 	_, execErr := o.Raw(query, globalTxn.PayerID, globalTxn.PayeeID, globalTxn.Amount, globalTxn.Description).Exec()
 	if execErr != nil {
 		log.Println("Database error:", execErr)
+		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin) // ✅ Added CORS for error
 		http.Error(w, `{"message": "Database error"}`, http.StatusInternalServerError)
 		return
 	}
@@ -152,6 +206,7 @@ func AddExpenseHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer)
 	w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") // ✅ Added Authorization
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseBody)
