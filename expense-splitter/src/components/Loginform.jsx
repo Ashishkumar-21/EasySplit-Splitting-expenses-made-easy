@@ -170,14 +170,14 @@ export const Loginform = ({ isLogin }) => {
       <div className={styles.formWrapper}>
         <h2 className={styles.title}>Welcome back</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <input
+          {/* <input
             type="text"
             placeholder="UserID"
             value={ID}
             onChange={(e) => setID(e.target.value)}
             className={`${styles.input} ${errors.id ? styles.inputError : ""}`}
-          />
-          <div className={styles.orSeparator}>or</div>
+          /> */}
+          {/* <div className={styles.orSeparator}>or</div> */}
           <input
             placeholder="Phone No."
             value={MobileNo}

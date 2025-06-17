@@ -185,6 +185,48 @@ func SettleExpenseHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Orm
 		return
 	}
 
+	// Fetch payer's name (A)
+	var payer models.Userauth
+	err = o.Raw("SELECT name FROM userauth WHERE user_id = ?", globalTransaction.PayerID).QueryRow(&payer)
+	if err != nil {
+		log.Println("Failed to fetch payer name:", err)
+		payer.Name = "someone" // fallback name
+	}
+	// Fetch payeee's name (B)
+	var payee models.Userauth 
+	err = o.Raw("SELECT name FROM userauth WHERE user_id = ?", globalTransaction.PayeeID).QueryRow(&payee)
+	if err != nil {
+		log.Println("Failed to fetch payee name:", err)
+		payee.Name = "someone" // fallback name
+	}
+
+	// Notification for person settling (B)
+	notificationSettler := models.Notification{
+		UserID:  globalTransaction.PayerID, // Person initiating settlement
+		Message: fmt.Sprintf("You settled  ₹%.2f with %s", globalTransaction.Amount, payee.Name),
+		IsRead:  false,
+		Type: "Settlement",
+	}
+
+	// Notification for person who originally paid (A)
+	notificationReceiver := models.Notification{
+		UserID:  globalTransaction.PayeeID,
+		Message: fmt.Sprintf("%s settled the amount — ₹%.2f", payer.Name, globalTransaction.Amount),
+		IsRead:  false,
+		Type: "Settlement",
+	}
+	
+	_, err1 := o.Insert(&notificationSettler)
+	if err1 != nil {
+		log.Println("Error inserting notification for settler:", err1)
+	}
+	
+	_, err2 := o.Insert(&notificationReceiver)
+	if err2 != nil {
+		log.Println("Error inserting notification for receiver:", err2)
+	}
+
+
 	responseBody, _ := json.Marshal(map[string]string{
 		"code":    "200",
 		"message": "settle added",

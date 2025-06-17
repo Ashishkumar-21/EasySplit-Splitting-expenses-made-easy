@@ -26,7 +26,7 @@ func generateToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		// "exp":     time.Now().Add(time.Hour * 24).Unix(), // expires in 24 hrs
-		"exp": time.Now().Add(time.Second * 30).Unix(), //30 sec
+		"exp": time.Now().Add(time.Minute * 5).Unix(), //30 sec
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)

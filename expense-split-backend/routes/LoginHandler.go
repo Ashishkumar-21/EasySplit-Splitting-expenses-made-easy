@@ -179,7 +179,7 @@ func LoginHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer) {
 		"user_id": user.User_id,
 		"mobile":  user.Mobile,
 		// "exp":     time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hrs
-		"exp": time.Now().Add(time.Second * 30).Unix(), // Token expires in 10 seconds
+		"exp": time.Now().Add(time.Minute * 5).Unix(), // Token expires in 10 seconds
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtSecret)

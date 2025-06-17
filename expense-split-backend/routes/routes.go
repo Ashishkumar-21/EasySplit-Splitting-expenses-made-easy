@@ -34,6 +34,13 @@ func InitRouter() http.Handler {
     mux.HandleFunc("/get-all-users", func(w http.ResponseWriter, r *http.Request) {
         GetAllUsersHandlerLocal(w, r, o)
     })
+    mux.HandleFunc("/notification/get", func(w http.ResponseWriter, r *http.Request) {
+        NotificationFetchHandlerLocal(w, r, o)
+    })
+    mux.HandleFunc("/notification/read", func(w http.ResponseWriter, r *http.Request) {
+        NotificationMarkReadHandlerLocal(w, r, o)
+    })
+    
 	
 
 

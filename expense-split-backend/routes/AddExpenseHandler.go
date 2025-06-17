@@ -198,6 +198,48 @@ func AddExpenseHandlerLocal(w http.ResponseWriter, r *http.Request, o orm.Ormer)
 		return
 	}
 
+	// Fetch payer's name (A)
+	var payer models.Userauth
+	err = o.Raw("SELECT name FROM userauth WHERE user_id = ?", globalTxn.PayerID).QueryRow(&payer)
+	if err != nil {
+		log.Println("Failed to fetch payer name:", err)
+		payer.Name = "someone" // fallback name
+	}
+	// Fetch payeee's name (B)
+	var payee models.Userauth 
+	err = o.Raw("SELECT name FROM userauth WHERE user_id = ?", globalTxn.PayeeID).QueryRow(&payee)
+	if err != nil {
+		log.Println("Failed to fetch payee name:", err)
+		payee.Name = "someone" // fallback name
+	}
+
+
+	// Notification for Payer (A) — who adds the expense  A is adding expense with B ,so B should pay to A
+	notificationPayer := models.Notification{
+		UserID:  globalTxn.PayerID,
+		Message: fmt.Sprintf("You added an expense with %s for \"%s\" — ₹%.2f", payee.Name, globalTxn.Description, float64(globalTxn.Amount)),
+		IsRead:  false,
+		Type: "Expense",
+	}
+	
+	// Notification for Payee (B) — who owes money
+	notificationPayee := models.Notification{
+		UserID:  globalTxn.PayeeID,
+		Message: fmt.Sprintf("You owe ₹%.2f to %s for \"%s\"", float64(globalTxn.Amount)/2, payer.Name, globalTxn.Description),
+		IsRead:  false,
+		Type: "Expense",
+	}
+
+	_, err1 := o.Insert(&notificationPayer)
+	if err1 != nil {
+		log.Println("Error inserting notification for payer:", err1)
+	}
+
+	_, err2 := o.Insert(&notificationPayee)
+	if err2 != nil {
+		log.Println("Error inserting notification for payee:", err2)
+	}
+
 	// Success response
 	responseBody, _ := json.Marshal(map[string]string{
 		"code":    "200",

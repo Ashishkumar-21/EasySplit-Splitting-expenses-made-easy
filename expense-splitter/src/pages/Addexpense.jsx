@@ -180,8 +180,8 @@ export function Addexpense() {
 
           <nav className={styles.navLinks}>
             <a className={`${styles.linkin} ${styles.link}`} href="/dashboard">Dashboard</a>
-            <a>Friends</a>
             <a>Groups</a>
+            <a className={`${styles.linkin} ${styles.link}`} href="/notification">🔔 Notifications</a>
             <a className={`${styles.linkout} ${styles.link}`} href="/" onClick={() => navigate("/")}>Log Out</a>
           </nav>
         </header>

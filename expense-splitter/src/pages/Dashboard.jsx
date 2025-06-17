@@ -179,10 +179,10 @@ export function Dashboard() {
                 </div>
 
                 <nav className={styles.navLinks}>
-                    <a className={`${styles.active}`} href="/dashboard">Dashboard</a>
-                    <a>Friends</a>
+                    <a className={`${styles.active} ${styles.link}`} href="/dashboard">Dashboard</a>
                     <a>Groups</a>
-                    <a className={styles.link} onClick={handleLogout}>Log Out</a> 
+                    <a className={`${styles.linkin} ${styles.link}`} href="/notification">🔔 Notifications</a>
+                    <a className={`${styles.linkout} ${styles.link}`}  onClick={handleLogout}>Log Out</a> 
                 </nav>
             </header>
 

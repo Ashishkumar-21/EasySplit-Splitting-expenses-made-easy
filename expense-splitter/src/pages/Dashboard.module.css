@@ -70,10 +70,13 @@
   text-decoration: none !important;
 }
 
-.link:hover{
+.linkout:hover{
   color: #ff3131;
 }
 
+.linkin:hover{
+  color: #01b87b;
+}
 .navButton {
   background-color: #adcbea;
   color: #101419;
@@ -385,4 +388,11 @@
 .tooltipWrapper:hover .tooltip {
     visibility: visible;
     opacity: 1;
+}
+
+.active{
+  /* font-size: 0.875rem;
+  font-weight: 500; */
+  color: #01b87b;
+  text-decoration: none !important;
 }
