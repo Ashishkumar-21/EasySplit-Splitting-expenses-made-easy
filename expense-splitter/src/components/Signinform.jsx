@@ -62,23 +62,36 @@
 
 
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./SignInForm.module.css";
 import { Snackbar, Alert } from '@mui/material';
+import { useNavigate, useLocation } from "react-router-dom"; // Add useNavigate + useLocation
+
 
 
 export const SignInForm = ({ onSignin }) => {
     const [Name, setName] = useState("");
     const [MobileNo, setNo] = useState("");
-     
+
     const [errors, setErrors] = useState({ name: "", mobile: "", password: "" }); // <-- CHANGE: Added password error
     const [Password, setPassword] = useState("");   //<-- CHANGE: Added state for password
-    const [snackbar, setSnackbar] = useState({
+
+
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const initialSnackbar = location.state?.snackbar || {
         open: false,
         message: '',
-        severity: 'success', // 'error' or 'success'
-    });
+        severity: 'success'
+    };
 
+    const [snackbar, setSnackbar] = useState(initialSnackbar);
+    useEffect(() => {
+        if (location.state?.snackbar) {
+          navigate(location.pathname, { replace: true, state: {} });
+        }
+      }, [location, navigate]);
 
     const validate = () => {
         let nameError = "";
@@ -107,8 +120,7 @@ export const SignInForm = ({ onSignin }) => {
     };
     const showSnackbar = (message, severity) => {
         setSnackbar({ open: true, message, severity });
-        setTimeout(() => setSnackbar({ ...snackbar, open: false }), 5000);
-    };
+      };
 
 
     const handleSubmit = async (e) => {
@@ -117,7 +129,7 @@ export const SignInForm = ({ onSignin }) => {
         //  const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-signin` ,{
         // const response = await fetch("http://localhost:9000/easysplit-signin", {
         try {
-              const response = await fetch("http://localhost:9000/easysplit-signin", {
+            const response = await fetch("http://localhost:9000/easysplit-signin", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -133,7 +145,16 @@ export const SignInForm = ({ onSignin }) => {
             localStorage.setItem("checkit-token", data.token); // <-- CHANGE: Store JWT token in localStorage
 
             onSignin(data);
-            showSnackbar('Sign in successful!', 'success');
+            navigate("/dashboard", {
+                state: {
+                  snackbar: {
+                    open: true,
+                    message: "Sign up successful!",
+                    severity: "success"
+                  }
+                }
+              });
+
 
         } catch (error) {
             showSnackbar(error.message, 'error');
@@ -195,15 +216,25 @@ export const SignInForm = ({ onSignin }) => {
 
                 <button className={styles.submitButton} type="submit">Sign in</button>
             </form>
-            <Snackbar
+          <Snackbar
                 open={snackbar.open}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-                <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
-                    {snackbar.message}
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{
+                        backgroundColor: snackbar.severity === "success" ? "#2e7d32" : "#c62828",
+                        color: "#fff",
+                        width: "100%"
+                    }}
+                >
+                <div>{snackbar.message}</div>
                 </Alert>
             </Snackbar>
-
         </div>
     );
 };

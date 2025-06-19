@@ -1,6 +1,6 @@
 // import React, { useState } from "react";
 // import  styles from '../components/Loginform.module.css'
-// import { useNavigate, useLocation } from "react-router-dom";
+useLocation// import { useNavigate, useLocation } from "react-router-dom";
 
 // export function Settleexpense() {
 //     const navigate = useNavigate(); 
@@ -73,6 +73,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Addexpense.module.css";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 
 export function Settleexpense() {
   const navigate = useNavigate();
@@ -87,19 +88,43 @@ export function Settleexpense() {
   const [FriendName, setname] = useState(friendName || "");
   const [Amount, setAmount] = useState(amountFromDashboard || "");
 
-  
+  // Snackbar states
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("checkit-token");
+    localStorage.removeItem("user_id");
+    navigate("/", {
+      state: {
+        snackbar: {
+          open: true,
+          message: "Logged out successfully",
+          severity: "success"
+        }
+      }
+    });
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!Friend_id || !Amount) {
-      window.alert("Please enter all the details");
+      setSnackbar({ open: true, message: "Please enter all required details", severity: "error" });
       return;
     }
-    
+
+    if (isNaN(Amount) || Number(Amount) <= 0) {
+      setSnackbar({ open: true, message: "Please enter a valid amount", severity: "error" });
+      return;
+    }
+
     try {
+      setSubmitting(true);
       const token = localStorage.getItem("checkit-token"); // Get token
       const response = await fetch(`http://localhost:9000/easysplit-settle-expense`, {
-            // const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-settle-expense `, {
+        // const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-settle-expense `, {
 
         method: "POST",
         headers: {
@@ -117,11 +142,20 @@ export function Settleexpense() {
       console.log("Fetch successful"); // ✅ Won’t run if fetch fails
       console.log("Response status:", response.status);
 
+   
       if (response.status === 401) {
-        window.alert("Session expired. Please log in again.");
         localStorage.removeItem("checkit-token");
         localStorage.removeItem("user_id");
-        navigate("/login");  // Redirect to login page
+
+        navigate("/login", {
+          state: {
+            snackbar: {
+              open: true,
+              message: "Session expired. Please log in again.",
+              severity: "error",
+            }
+          }
+        });
         return;
       }
 
@@ -129,11 +163,14 @@ export function Settleexpense() {
 
       const data = await response.json();
       if (data.message === "settle added") {
-        window.alert("Settle added successfully");
-        navigate(`/friend-transactions?friend_id=${Friend_id}`);
+        setSnackbar({ open: true, message: "Settle added successfully", severity: "success" });
+        setTimeout(() => {
+          navigate(`/friend-transactions?friend_id=${Friend_id}`);
+        }, 2000);   //2 secs
       }
     } catch (error) {
-      alert(error.message);
+      setSubmitting(false); // ✅ Stop translucent effect on error
+      setSnackbar({ open: true, message: error.message, severity: "error" });
     }
   };
 
@@ -157,13 +194,19 @@ export function Settleexpense() {
             <a className={`${styles.linkin} ${styles.link}`} href="/dashboard">Dashboard</a>
             <a>Groups</a>
             <a className={`${styles.linkin} ${styles.link}`} href="/notification">🔔 Notifications</a>
-            <a className={`${styles.linkout} ${styles.link}`} href="/" onClick={() => navigate("/")}>Log Out</a>
+            <a className={`${styles.linkout} ${styles.link}`} onClick={handleLogout}>Log Out</a>
           </nav>
         </header>
       </div>
 
       <div className={styles.loginContainer}>
-        <div className={styles.loginBox}>
+        <div
+          className={styles.loginBox}
+          style={{
+            opacity: submitting ? 0.5 : 1,
+            pointerEvents: submitting ? "none" : "auto",
+          }}
+        >
           <h2 className={styles.loginTitle}>Settle Up</h2>
           <form onSubmit={handleSubmit}>
             <label className={styles.label}>
@@ -208,6 +251,38 @@ export function Settleexpense() {
           </form>
         </div>
       </div>
+      {/* Snackbar for success or error */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => {
+          setSnackbar({ ...snackbar, open: false });
+          setSubmitting(false);
+        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => {
+            setSnackbar({ ...snackbar, open: false });
+            setSubmitting(false);
+          }}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{
+            backgroundColor: snackbar.severity === "success" ? "#2e7d32" : "#c62828",
+            color: "#fff",
+            width: "100%",
+          }}
+        >
+          <div>{snackbar.message}</div>
+          {/* <div className={styles.snackbarContainer}>
+            {snackbar.message}
+            <div className={styles.progressBarWrapper}>
+              <div className={styles.progressBar}></div>
+            </div> */}
+          {/* </div> */}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -108,6 +108,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Friend.module.css";
 import { Loader } from "../components/Loader";
+import { Snackbar, Alert } from "@mui/material";
 
 export function FriendTransactions() {
     const nav = useNavigate();
@@ -119,10 +120,34 @@ export function FriendTransactions() {
     const [FriendName, setFriendName] = useState("");
     const [Balance, setBalance] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "error"
+    });
+
+    const showSnackbar = (message, severity = "error") => {
+        setSnackbar({ open: true, message, severity });
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("checkit-token");
+        localStorage.removeItem("user_id");
+        navigate("/", {
+          state: {
+            snackbar: {
+              open: true,
+              message: "Logged out successfully",
+              severity: "success"
+            }
+          }
+        });
+      };
+    
 
     useEffect(() => {
         if (!userId) {
-            alert("User ID not found!");
+            showSnackbar("User ID not found!", "error");
             return;
         }
 
@@ -140,7 +165,7 @@ export function FriendTransactions() {
                 setFriendData(data.data);
                 setBalance(data.Balance);
             } catch (error) {
-                alert(error.message);
+                showSnackbar(error.message || "Something went wrong", "error");
             } finally {
                 setLoading(false);
             }
@@ -167,7 +192,8 @@ export function FriendTransactions() {
                     <a className={`${styles.linkin} ${styles.link}`} href="/dashboard">Dashboard</a>
                     <a>Groups</a>
                     <a className={`${styles.linkin} ${styles.link}`} href="/notification">🔔 Notifications</a>
-                    <a className={`${styles.linkout} ${styles.link}`} href="/" onClick={() => navigate("/")}>Log Out</a>
+                    <a className={`${styles.linkout} ${styles.link}`} onClick={handleLogout}>Log Out</a>
+
                 </nav>
             </header>
             <div className={styles.PageTitle}>
@@ -225,6 +251,25 @@ export function FriendTransactions() {
                     )}
                 </div>
             </div>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{
+                        backgroundColor: snackbar.severity === "success" ? "#2e7d32" : "#c62828",
+                        color: "#fff",
+                        width: "100%",
+                    }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </div >
     );
 }

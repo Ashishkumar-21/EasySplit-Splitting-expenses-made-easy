@@ -19,6 +19,21 @@ type UserResponse struct {
 
 // Lambda-compatible handler
 func GetAllUsersHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	allowedOrigin := "http://localhost:8081" 
+
+	// Handle OPTIONS preflight
+	if request.HTTPMethod == "OPTIONS" {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 200,
+			Headers: map[string]string{
+				"Access-Control-Allow-Origin":  allowedOrigin,
+				"Access-Control-Allow-Methods": "GET, OPTIONS",
+				"Access-Control-Allow-Headers": "Content-Type, Authorization",
+			},
+			Body: "",
+		}, nil
+	}
+
 	var users []UserResponse
 
 	_, err := o.Raw("SELECT user_id, name FROM userauth").QueryRows(&users)
@@ -27,7 +42,7 @@ func GetAllUsersHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (eve
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
 			Headers: map[string]string{
-				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Origin": allowedOrigin,
 			},
 			Body: fmt.Sprintf("Database error: %s", err),
 		}, nil
@@ -37,9 +52,10 @@ func GetAllUsersHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (eve
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
 		Headers: map[string]string{
-			"Access-Control-Allow-Origin":  "*",
+			"Access-Control-Allow-Origin":  allowedOrigin,
 			"Access-Control-Allow-Methods": "GET, OPTIONS",
-			"Access-Control-Allow-Headers": "Content-Type",
+			"Access-Control-Allow-Headers": "Content-Type, Authorization",
+			"Content-Type":                 "application/json",
 		},
 		Body: string(responseBody),
 	}, nil

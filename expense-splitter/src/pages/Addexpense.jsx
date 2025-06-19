@@ -77,6 +77,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Addexpense.module.css";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 
 export function Addexpense() {
   const navigate = useNavigate();
@@ -91,6 +92,9 @@ export function Addexpense() {
   const [Notes, setNotes] = useState("");
   const [Users, setUsers] = useState([]);
 
+  // Snackbar states
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -107,20 +111,37 @@ export function Addexpense() {
         setUsers(data);
       } catch (error) {
         console.error("Error fetching users:", error);
-        alert("Could not load users");
+        // alert("Could not load users");
+        setSnackbar({ open: true, message: "Could not load users", severity: "error" });
       }
     }
 
     fetchUsers();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("checkit-token");
+    localStorage.removeItem("user_id");
+    navigate("/", {
+      state: {
+        snackbar: {
+          open: true,
+          message: "Logged out successfully",
+          severity: "success"
+        }
+      }
+    });
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!Friend_id || !Amount || !Desc) {
-      window.alert("Please enter all required details");
+      setSnackbar({ open: true, message: "Please enter all required details", severity: "error" });
       return;
     }
     try {
+      setSubmitting(true);
       const token = localStorage.getItem("checkit-token"); // ✅ Add token
 
       //const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-login-createExpense`, {
@@ -141,10 +162,18 @@ export function Addexpense() {
       });
 
       if (response.status === 401) {
-        alert("Session expired. Please log in again."); // ✅ Alert on 401
         localStorage.removeItem("checkit-token");
         localStorage.removeItem("user_id");
-        navigate("/login"); // ✅ Redirect to login
+
+        navigate("/login", {
+          state: {
+            snackbar: {
+              open: true,
+              message: "Session expired. Please log in again.",
+              severity: "error",
+            }
+          }
+        });
         return;
       }
 
@@ -154,11 +183,14 @@ export function Addexpense() {
 
       const data = await response.json();
       if (data.message === "expense added") {
-        window.alert("Expense added successfully");
-        navigate(`/friend-transactions?friend_id=${Friend_id}`);
+        setSnackbar({ open: true, message: "Expense added successfully", severity: "success" });
+        setTimeout(() => {
+          navigate(`/friend-transactions?friend_id=${Friend_id}`);
+        }, 2000);  //2 secs
       }
     } catch (error) {
-      alert(error.message);
+      setSubmitting(false); // ✅ Stop translucent effect on error
+      setSnackbar({ open: true, message: error.message, severity: "error" });
     }
   };
 
@@ -182,14 +214,22 @@ export function Addexpense() {
             <a className={`${styles.linkin} ${styles.link}`} href="/dashboard">Dashboard</a>
             <a>Groups</a>
             <a className={`${styles.linkin} ${styles.link}`} href="/notification">🔔 Notifications</a>
-            <a className={`${styles.linkout} ${styles.link}`} href="/" onClick={() => navigate("/")}>Log Out</a>
+            <a className={`${styles.linkout} ${styles.link}`} onClick={handleLogout}>Log Out</a>
+
           </nav>
         </header>
       </div>
 
       <div className={styles.loginContainer}>
-        <div className={styles.loginBox}>
+        <div
+          className={styles.loginBox}
+          style={{
+            opacity: submitting ? 0.5 : 1,
+            pointerEvents: submitting ? "none" : "auto",
+          }}
+        >
           <h2 className={styles.loginTitle}>Add Expense</h2>
+
           <form onSubmit={handleSubmit}>
             <label className={styles.label}>
               Select Friend
@@ -263,6 +303,39 @@ export function Addexpense() {
           </form>
         </div>
       </div>
-    </div>
+      {/* Snackbar for success or error */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => {
+          setSnackbar({ ...snackbar, open: false });
+          setSubmitting(false);
+        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => {
+            setSnackbar({ ...snackbar, open: false });
+            setSubmitting(false);
+          }}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{
+            backgroundColor: snackbar.severity === "success" ? "#2e7d32" : "#c62828",
+            color: "#fff",
+            width: "100%",
+          }}
+        >
+          <div>{snackbar.message}</div>
+          {/* <div className={styles.snackbarContainer}>
+            {snackbar.message}
+            <div className={styles.progressBarWrapper}>
+              <div className={styles.progressBar}></div>
+            </div> */}
+          {/* </div> */}
+        </Alert>
+      </Snackbar>
+
+    </div >
   );
 }

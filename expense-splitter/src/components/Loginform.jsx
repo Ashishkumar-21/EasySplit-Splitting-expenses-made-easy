@@ -28,7 +28,7 @@
 //                 console.log("mobile in ls:", localStorage.getItem("mobile"))
 //             }
 //             isLogin({ID, MobileNo, message})
-            
+
 //         }
 //         catch(error){
 //             alert(error.message)
@@ -51,14 +51,31 @@
 // }
 
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./Loginform.module.css";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material"; // You missed importing Snackbar & Alert
 
 export const Loginform = ({ isLogin }) => {
+  
+  const navigate = useNavigate();
   const [ID, setID] = useState("");
   const [MobileNo, setNo] = useState("");
   const [errors, setErrors] = useState({ id: false, phone: false, message: "" });
   const [Password, setPassword] = useState(""); //  Added state for password
+  const location = useLocation();
+  const initialSnackbar = location.state?.snackbar || {
+    open: false,
+    message: "",
+    severity: "success"
+  };
+  const [snackbar, setSnackbar] = useState(initialSnackbar);
+  useEffect(() => {
+    if (location.state?.snackbar) {
+      // Replace current history entry without snackbar state to avoid showing it again on reload/back
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +115,7 @@ export const Loginform = ({ isLogin }) => {
     // Clear errors if valid
     setErrors({ id: false, phone: false, message: "" });
 
-    
+
     // const response = await fetch(`https://h1aq3pu22g.execute-api.ap-south-1.amazonaws.com/default/easysplit-login?user_id=${ID}&mobile=${MobileNo}`);
 
     try {
@@ -135,8 +152,20 @@ export const Loginform = ({ isLogin }) => {
       }
 
       isLogin({ ID: user_id, MobileNo: mobile, message, token }); //  Pass token up
-    } catch (error) {
-      alert(error.message);
+
+      navigate("/dashboard", {
+        state: {
+          snackbar: {
+            open: true,
+            message: "Login successful!",
+            severity: "success"
+          }
+        }
+      });
+
+    }  catch (err) {
+      console.error("Fetch error", err);
+      setSnackbar({open: true, message: err.message, severity: "error" });
     }
   };
 
@@ -205,6 +234,25 @@ export const Loginform = ({ isLogin }) => {
         </form>
         <a href="/signup" className={styles.signupLink}>Don't have an account? Sign Up</a>
       </div>
+       <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{
+            backgroundColor: snackbar.severity === "success" ? "#2e7d32" : "#c62828",
+            color: "#fff",
+            width: "100%",
+          }}
+        >
+          <div>{snackbar.message}</div>
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

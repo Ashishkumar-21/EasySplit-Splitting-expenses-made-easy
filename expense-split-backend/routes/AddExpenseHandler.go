@@ -100,6 +100,40 @@ func AddExpenseHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (even
 			Body: `{"message": "Database error"}`,
 		}, nil
 	}
+
+	// Fetch names for notifications
+	var payer models.Userauth
+	if err := o.Raw("SELECT name FROM userauth WHERE user_id = ?", Global_transactions.PayerID).QueryRow(&payer); err != nil {
+		log.Println("Failed to fetch payer name:", err)
+		payer.Name = "someone"
+	}
+	var payee models.Userauth
+	if err := o.Raw("SELECT name FROM userauth WHERE user_id = ?", Global_transactions.PayeeID).QueryRow(&payee); err != nil {
+		log.Println("Failed to fetch payee name:", err)
+		payee.Name = "someone"
+	}
+
+	// Create notifications
+	notificationPayer := models.Notification{
+		UserID:  Global_transactions.PayerID,
+		Message: fmt.Sprintf("You added an expense with %s for \"%s\" — ₹%.2f", payee.Name, Global_transactions.Description, float64(Global_transactions.Amount)),
+		IsRead:  false,
+		Type:    "Expense",
+	}
+	notificationPayee := models.Notification{
+		UserID:  Global_transactions.PayeeID,
+		Message: fmt.Sprintf("You owe ₹%.2f to %s for \"%s\"", float64(Global_transactions.Amount)/2, payer.Name, Global_transactions.Description),
+		IsRead:  false,
+		Type:    "Expense",
+	}
+	if _, err := o.Insert(&notificationPayer); err != nil {
+		log.Println("Error inserting notification for payer:", err)
+	}
+	if _, err := o.Insert(&notificationPayee); err != nil {
+		log.Println("Error inserting notification for payee:", err)
+	}
+
+
 	responseBody, _ := json.Marshal(map[string]string{
 		"code":    "200",
 		"message": "expense added",

@@ -95,7 +95,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Dashboard.module.css";
 import { Loader } from "../components/Loader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 
 export function Dashboard() {
     const navigate = useNavigate();
@@ -108,12 +109,36 @@ export function Dashboard() {
     const [loading, setLoading] = useState(false);
     const token = localStorage.getItem("checkit-token"); // COMMENT: token retrieved to authorize API requests
     // console.log("Data token:", token);  //
+    const location = useLocation();
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
+
+    useEffect(() => {
+        if (location.state?.snackbar) {
+            setSnackbar(location.state.snackbar);
+            setTimeout(() => {
+                window.history.replaceState({}, document.title);
+            }, 0); // clear state immediately to avoid duplicate snackbar on refresh
+        }
+    }, [location.state]);
+
     useEffect(() => {
         if (!userId) {
-            alert("User ID not found! Please login");
-            navigate("/login")
+            navigate("/login", {
+              state: {
+                snackbar: {
+                  open: true,
+                  message: "User ID not found! Please login",
+                  severity: "error"
+                }
+              }
+            });
             return;
-        }
+          }
+          
 
         const getFriends = async () => {
             setLoading(true);
@@ -131,13 +156,21 @@ export function Dashboard() {
                 );
 
                 if (response.status === 401) {
-                    alert("Session expired. Please log in again."); // ✅ Alert on 401
                     localStorage.removeItem("checkit-token");
                     localStorage.removeItem("user_id");
-                    navigate("/login"); // ✅ Redirect to login
+                  
+                    navigate("/login", {
+                      state: {
+                        snackbar: {
+                          open: true,
+                          message: "Session expired. Please log in again.",
+                          severity: "error",
+                        }
+                      }
+                    });
                     return;
                 }
-                
+
                 if (!response.ok) throw new Error("Invalid response");
 
                 const data = await response.json();
@@ -146,7 +179,7 @@ export function Dashboard() {
                 setPos(data.PositiveBalance);
                 setName(data.userName);
             } catch (error) {
-                alert(error.message || "Something went wrong");
+                setSnackbar(error.message || "Something went wrong", 'error');
             } finally {
                 setLoading(false);
             }
@@ -157,11 +190,18 @@ export function Dashboard() {
 
 
     const handleLogout = () => {
-        // CHANGE: Remove token and user details on logout
-        localStorage.removeItem("checkit-token"); // COMMENT: Token cleared on logout
+        localStorage.removeItem("checkit-token");
         localStorage.removeItem("user_id");
-        navigate("/"); // COMMENT: Redirect to login page
-    };
+        navigate("/", {
+          state: {
+            snackbar: {
+              open: true,
+              message: "Logged out successfully",
+              severity: "success"
+            }
+          }
+        });
+      };
 
 
     return loading ? (
@@ -182,7 +222,7 @@ export function Dashboard() {
                     <a className={`${styles.active} ${styles.link}`} href="/dashboard">Dashboard</a>
                     <a>Groups</a>
                     <a className={`${styles.linkin} ${styles.link}`} href="/notification">🔔 Notifications</a>
-                    <a className={`${styles.linkout} ${styles.link}`}  onClick={handleLogout}>Log Out</a> 
+                    <a className={`${styles.linkout} ${styles.link}`} onClick={handleLogout}>Log Out</a>
                 </nav>
             </header>
 
@@ -277,6 +317,25 @@ export function Dashboard() {
 
 
             </main>
-        </div>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{
+                        backgroundColor: snackbar.severity === "success" ? "#2e7d32" : "#c62828",
+                        color: "#fff",
+                        width: "100%"
+                    }}
+                >
+                <div>{snackbar.message}</div>
+                </Alert>
+            </Snackbar>
+        </div >
     );
 }

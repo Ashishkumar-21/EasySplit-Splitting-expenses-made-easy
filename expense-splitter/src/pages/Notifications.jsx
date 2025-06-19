@@ -2,16 +2,28 @@ import React, { useEffect, useState } from "react";
 import styles from "./Notification.module.css";
 import { useNavigate } from "react-router-dom";
 import { Loader } from "../components/Loader";
+import { Snackbar, Alert } from "@mui/material";
 
 export function Notification() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error"
+  });
+
   const token = localStorage.getItem("checkit-token");
   const userId = localStorage.getItem("user_id");
   const baseURL = "http://localhost:9000";
   // const base url = "lambaapi"
   const hasUnread = notifications.some((notif) => !notif.is_read);
+
+  const showSnackbar = (message, severity = "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   // 📥 Get notifications
   const fetchNotifications = async () => {
@@ -24,7 +36,7 @@ export function Notification() {
         },
       });
       if (res.status === 401) {
-        alert("Session expired. Please log in again."); // ✅ Alert on 401
+        showSnackbar("Session expired. Please log in again.", "error"); // error 401
         localStorage.removeItem("checkit-token");
         localStorage.removeItem("user_id");
         navigate("/login"); // ✅ Redirect to login
@@ -34,6 +46,7 @@ export function Notification() {
       setNotifications(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Fetch error", err);
+      showSnackbar("Failed to fetch notifications. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -53,7 +66,7 @@ export function Notification() {
         }),
       });
       if (res.status === 401) {
-        alert("Session expired. Please log in again."); // ✅ Alert on 401
+        showSnackbar("Session expired. Please log in again.", "error");  // error 401
         localStorage.removeItem("checkit-token");
         localStorage.removeItem("user_id");
         navigate("/login"); // ✅ Redirect to login
@@ -64,6 +77,7 @@ export function Notification() {
       }
     } catch (err) {
       console.error("Mark one error", err);
+      showSnackbar("Failed to mark notification as read.");
     }
   };
 
@@ -82,7 +96,7 @@ export function Notification() {
       });
 
       if (res.status === 401) {
-        alert("Session expired. Please log in again."); // ✅ Alert on 401
+        showSnackbar("Session expired. Please log in again.", "error");   // 401 error
         localStorage.removeItem("checkit-token");
         localStorage.removeItem("user_id");
         navigate("/login"); // ✅ Redirect to login
@@ -94,18 +108,27 @@ export function Notification() {
       }
     } catch (err) {
       console.error("Mark all error", err);
+      showSnackbar("Failed to mark all as read.");
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("checkit-token");
     localStorage.removeItem("user_id");
-    navigate("/");
+    navigate("/", {
+      state: {
+        snackbar: {
+          open: true,
+          message: "Logged out successfully",
+          severity: "success"
+        }
+      }
+    });
   };
 
   useEffect(() => {
     if (!userId) {
-      alert("User ID not found! Please login");
+      showSnackbar("User ID not found! Please login", "error");
       navigate("/login");
       return;
     }
@@ -196,6 +219,25 @@ export function Notification() {
           </div>
         )}
       </main>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{
+            backgroundColor: snackbar.severity === "success" ? "#2e7d32" : "#c62828",
+            color: "#fff",
+            width: "100%"
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

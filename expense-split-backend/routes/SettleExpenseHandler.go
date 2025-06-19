@@ -92,6 +92,48 @@ func SettleExpenseHandler(o orm.Ormer, request events.APIGatewayProxyRequest) (e
 			Body: `{"message": "Database error"}`,
 		}, nil
 	}
+
+	
+	// Fetch payer's name
+	var payer models.Userauth
+	err = o.Raw("SELECT name FROM userauth WHERE user_id = ?", Global_transactions.PayerID).QueryRow(&payer)
+	if err != nil {
+		log.Println("Failed to fetch payer name:", err)
+		payer.Name = "someone"
+	}
+
+	// Fetch payee's name
+	var payee models.Userauth
+	err = o.Raw("SELECT name FROM userauth WHERE user_id = ?", Global_transactions.PayeeID).QueryRow(&payee)
+	if err != nil {
+		log.Println("Failed to fetch payee name:", err)
+		payee.Name = "someone"
+	}
+
+	notificationSettler := models.Notification{
+		UserID:  Global_transactions.PayerID,
+		Message: fmt.Sprintf("You settled ₹%.2f with %s", Global_transactions.Amount, payee.Name),
+		IsRead:  false,
+		Type:    "Settlement",
+	}
+
+	notificationReceiver := models.Notification{
+		UserID:  Global_transactions.PayeeID,
+		Message: fmt.Sprintf("%s settled the amount — ₹%.2f", payer.Name, Global_transactions.Amount),
+		IsRead:  false,
+		Type:    "Settlement",
+	}
+
+	_, err1 := o.Insert(&notificationSettler)
+	if err1 != nil {
+		log.Println("Error inserting notification for settler:", err1)
+	}
+
+	_, err2 := o.Insert(&notificationReceiver)
+	if err2 != nil {
+		log.Println("Error inserting notification for receiver:", err2)
+	}
+
 	responseBody, _ := json.Marshal(map[string]string{
 		"code":    "200",
 		"message": "settle added",
